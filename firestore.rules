@@ -1,0 +1,67 @@
+rules_version = '2';
+
+// ────────────────────────────────────────────────────────────────
+// Kekulawala Advertising — Firestore security rules
+// Project: kekulawala-erp
+// • PUBLIC WEBSITE (kekulawala.com): may SUBMIT quote inquiries
+//   (write-only) and READ + PUBLISH customer reviews/comments.
+// • KEKULAWALA ERP (kekulawala.com/erp — separate system):
+//   staff signed in with Firebase Auth AND carrying the custom
+//   claim `staff: true` may read/manage inquiries and moderate
+//   reviews. Grant with the Admin SDK:
+//     admin.auth().setCustomUserClaims(uid, { staff: true })
+// • Everything else is denied. The website can NEVER read the
+//   inquiries it collects — only the ERP (or Firebase Console) can.
+// ────────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isString(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    // ERP staff: authenticated + custom claim `staff: true`
+    function isStaff() {
+      return request.auth != null
+          && request.auth.token.staff == true;
+    }
+
+    // ── Quote / contact inquiries from kekulawala.com ──
+    match /inquiries/{id} {
+      allow create: if
+        isString(request.resource.data.name, 2, 80) &&
+        isString(request.resource.data.phone, 7, 20) &&
+        isString(request.resource.data.service, 2, 80) &&
+        isString(request.resource.data.message, 5, 1500) &&
+        request.resource.data.status == 'new' &&
+        request.resource.data.source == 'kekulawala.com' &&
+        request.resource.data.keys().hasOnly([
+          'name', 'phone', 'email', 'town', 'service',
+          'budget', 'message', 'status', 'source', 'createdAt'
+        ]);
+      // Only ERP staff can view / progress / delete inquiries.
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── Public customer reviews / comments ──
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if
+        isString(request.resource.data.name, 2, 60) &&
+        isString(request.resource.data.text, 5, 500) &&
+        request.resource.data.rating is int &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5 &&
+        request.resource.data.keys().hasOnly([
+          'name', 'business', 'rating', 'text', 'approved', 'createdAt'
+        ]);
+      // Only ERP staff can moderate (edit / unpublish / delete).
+      allow update, delete: if isStaff();
+    }
+
+    // ── Everything else: ERP staff only (future ERP collections) ──
+    match /{document=**} {
+      allow read, write: if isStaff();
+    }
+  }
+}
