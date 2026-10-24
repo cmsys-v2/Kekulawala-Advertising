@@ -9,16 +9,16 @@ export const SITE = {
   name: "Kekulawala Advertising",
   domain: "kekulawala.com",
 
-  /* ── TODO: replace with real contact details ── */
-  phoneDisplay: "+94 37 222 0000",          // landline shown on site
-  phoneLink: "+94372220000",
-  mobileDisplay: "+94 77 123 4567",         // mobile / WhatsApp shown on site
-  whatsapp: "94771234567",                  // WhatsApp number (country code + number, no +)
-  email: "info@kekulawala.com",
-  salesEmail: "sales@kekulawala.com",
-  addressHTML: "Colombo Road, Kurunegala,<br>North Western Province 60000, Sri Lanka",
-  addressShortHTML: "Colombo Road, Kurunegala,<br>North Western Province, Sri Lanka",
-  mapQuery: "Kurunegala, Sri Lanka",
+  /* ── Official contact details (from the company letterhead) ── */
+  phoneDisplay: "+94 37 223 4221",          // landline: 037 22 34 221
+  phoneLink: "+94372234221",
+  mobileDisplay: "+94 71 719 4371",         // mobile / WhatsApp: 071 71 94 371
+  whatsapp: "94717194371",                  // WhatsApp number (country code + number, no +)
+  email: "kekulawala.advertising@gmail.com",
+  salesEmail: "kekulawala.advertising@gmail.com",
+  addressHTML: "Colombo Road, Wehera, Kurunegala,<br>North Western Province, Sri Lanka",
+  addressShortHTML: "Colombo Road, Wehera, Kurunegala,<br>North Western Province, Sri Lanka",
+  mapQuery: "Kekulawala Advertising, Wehera, Kurunegala",
   socials: {
     facebook: "https://facebook.com/",      // TODO: real page URLs
     instagram: "https://instagram.com/",

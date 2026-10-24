@@ -42,7 +42,7 @@ The two codebases are developed/deployed independently and the website intention
 
 ```
 Kekulawala-Advertising/
-├── public/                  ← Firebase Hosting root (the website)
+├── public/                  ← Firebase Hosting root (the public website)
 │   ├── index.html
 │   ├── 404.html
 │   ├── css/style.css
@@ -50,10 +50,17 @@ Kekulawala-Advertising/
 │   │   ├── config.js        ★ EDIT THIS: contact details + Firebase keys
 │   │   ├── firebase.js      Firestore layer (auto demo-mode fallback)
 │   │   └── main.js          All interactivity & content data
-│   └── assets/img/          Logo, icons, portfolio photos
-├── firebase.json            Hosting + Firestore config
+│   ├── erp/index.html       ← Deployed copy of the ERP app (kekulawala.com/erp)
+│   └── assets/img/          Logos, Sinhala wordmark, banners, portfolio photos
+├── erp/                     ← KEKULAWALA ERP (separate system — see erp/README.md)
+│   ├── index.html           ERP staff gateway (source of truth)
+│   ├── system-logo.jpg      Official ERP system logo
+│   └── README.md            Data contract, security model, deploy steps
+├── brand/                   ← Official brand kit — master files (company logo,
+│                              Sinhala wordmark, banners, letterhead, system logo)
+├── firebase.json            Hosting (site + /erp routing) + Firestore config
 ├── .firebaserc              → project: kekulawala-erp
-├── firestore.rules          Security rules (public submit, team-only read)
+├── firestore.rules          Security rules (public submit · ERP-staff manage)
 ├── firestore.indexes.json
 └── storage.rules
 ```
