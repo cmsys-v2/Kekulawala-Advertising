@@ -3,16 +3,27 @@ rules_version = '2';
 // ────────────────────────────────────────────────────────────────
 // Kekulawala Advertising — Firestore security rules
 // Project: kekulawala-erp
-// • Anyone may SUBMIT a quote inquiry (write-only from the web).
-// • Anyone may READ reviews and PUBLISH a review (field-checked).
-// • Reading inquiries / editing / deleting anything requires the
-//   Firebase Console (project owners/editors) — never the website.
+// • PUBLIC WEBSITE (kekulawala.com): may SUBMIT quote inquiries
+//   (write-only) and READ + PUBLISH customer reviews/comments.
+// • KEKULAWALA ERP (kekulawala.com/erp — separate system):
+//   staff signed in with Firebase Auth AND carrying the custom
+//   claim `staff: true` may read/manage inquiries and moderate
+//   reviews. Grant with the Admin SDK:
+//     admin.auth().setCustomUserClaims(uid, { staff: true })
+// • Everything else is denied. The website can NEVER read the
+//   inquiries it collects — only the ERP (or Firebase Console) can.
 // ────────────────────────────────────────────────────────────────
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function isString(v, min, max) {
       return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    // ERP staff: authenticated + custom claim `staff: true`
+    function isStaff() {
+      return request.auth != null
+          && request.auth.token.staff == true;
     }
 
     // ── Quote / contact inquiries from kekulawala.com ──
@@ -28,12 +39,11 @@ service cloud.firestore {
           'name', 'phone', 'email', 'town', 'service',
           'budget', 'message', 'status', 'source', 'createdAt'
         ]);
-      // Only the Kekulawala team (via Firebase Console / future ERP
-      // with Firebase Auth) can read or manage inquiries.
-      allow read, update, delete: if false;
+      // Only ERP staff can view / progress / delete inquiries.
+      allow read, update, delete: if isStaff();
     }
 
-    // ── Public customer reviews ──
+    // ── Public customer reviews / comments ──
     match /reviews/{id} {
       allow read: if true;
       allow create: if
@@ -45,12 +55,13 @@ service cloud.firestore {
         request.resource.data.keys().hasOnly([
           'name', 'business', 'rating', 'text', 'approved', 'createdAt'
         ]);
-      allow update, delete: if false;
+      // Only ERP staff can moderate (edit / unpublish / delete).
+      allow update, delete: if isStaff();
     }
 
-    // ── Everything else is locked down ──
+    // ── Everything else: ERP staff only (future ERP collections) ──
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isStaff();
     }
   }
 }

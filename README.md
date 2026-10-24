@@ -8,6 +8,22 @@ An interactive, single-page marketing website for Kekulawala Advertising with a 
 
 ---
 
+## 🏗️ One domain, two independent systems
+
+**kekulawala.com** serves two systems that share only the domain and the Firebase project:
+
+| Address | System | Audience | Repo folder |
+|---|---|---|---|
+| `kekulawala.com/` | **Public website** (this project) | Customers | `public/` |
+| `kekulawala.com/erp` | **Kekulawala ERP** — sole internal management system | Staff only | `erp/` |
+
+The public website only **collects** three things into Firestore — **quotation requests,
+customer comments (reviews) and inquiries**. The ERP is where staff read and manage them.
+The two codebases are developed/deployed independently and the website intentionally does
+**not** link to `/erp`. ERP details, data contract and deploy steps: **[`erp/README.md`](erp/README.md)**.
+
+---
+
 ## ✨ Features
 
 | Area | What's included |
@@ -76,13 +92,13 @@ npx serve public                # static preview
 
 ## 🗄️ Firestore data model
 
-**`inquiries`** — every quote/contact submission
+**`inquiries`** — every quotation request / inquiry submission
 `name, phone, email, town, service, budget, message, status:"new", source:"kekulawala.com", createdAt`
-→ Read/manage them in the Firebase Console (or later from the Kekulawala ERP). The website itself can **only create** — never read — these records.
+→ Managed **only** in the Kekulawala ERP (`kekulawala.com/erp`) by signed-in staff — see `erp/README.md`. The website itself can **only create** — never read — these records.
 
-**`reviews`** — public customer feedback
+**`reviews`** — public customer comments / feedback
 `name, business, rating (1–5), text, approved, createdAt`
-→ The site streams the latest 60 live. To moderate, edit/delete documents in the Console.
+→ The site streams the latest 60 live. ERP staff can moderate (edit/unpublish/delete); nobody else can.
 
 ---
 
