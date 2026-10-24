@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// ────────────────────────────────────────────────────────────────
+// Kekulawala Advertising — Firestore security rules
+// Project: kekulawala-erp
+// • Anyone may SUBMIT a quote inquiry (write-only from the web).
+// • Anyone may READ reviews and PUBLISH a review (field-checked).
+// • Reading inquiries / editing / deleting anything requires the
+//   Firebase Console (project owners/editors) — never the website.
+// ────────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isString(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    // ── Quote / contact inquiries from kekulawala.com ──
+    match /inquiries/{id} {
+      allow create: if
+        isString(request.resource.data.name, 2, 80) &&
+        isString(request.resource.data.phone, 7, 20) &&
+        isString(request.resource.data.service, 2, 80) &&
+        isString(request.resource.data.message, 5, 1500) &&
+        request.resource.data.status == 'new' &&
+        request.resource.data.source == 'kekulawala.com' &&
+        request.resource.data.keys().hasOnly([
+          'name', 'phone', 'email', 'town', 'service',
+          'budget', 'message', 'status', 'source', 'createdAt'
+        ]);
+      // Only the Kekulawala team (via Firebase Console / future ERP
+      // with Firebase Auth) can read or manage inquiries.
+      allow read, update, delete: if false;
+    }
+
+    // ── Public customer reviews ──
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if
+        isString(request.resource.data.name, 2, 60) &&
+        isString(request.resource.data.text, 5, 500) &&
+        request.resource.data.rating is int &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5 &&
+        request.resource.data.keys().hasOnly([
+          'name', 'business', 'rating', 'text', 'approved', 'createdAt'
+        ]);
+      allow update, delete: if false;
+    }
+
+    // ── Everything else is locked down ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

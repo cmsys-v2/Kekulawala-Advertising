@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kekulawala.com/sitemap.xml

@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Kekulawala Advertising — Cloud Storage rules (future: artwork uploads)
+// Locked down until an authenticated upload feature is added.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
