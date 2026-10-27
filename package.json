@@ -1,0 +1,15 @@
+{
+  "name": "kekulawala-advertising",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Official website of Kekulawala Advertising — Indoor & Outdoor Signage Solutions, Kurunegala, Sri Lanka (Since 1982)",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
